@@ -41,29 +41,40 @@ class AI : BaseAI
       //make sure you own enough scrap
       if (players[playerID()].ScrapAmount >= modelVariants[(int)Unit.CLAW].Cost)
       {
-          //make sure nothing is spawning there
-          if (getTile(spawnX, spawnY).TurnsUntilAssembled == 0)
+          bool spawning = false;
+          while (!spawning)
           {
-              bool spawn = true;
-              //make sure there isn't a hangar there
-              for (int i = 0; i < droids.Length; i++)
+              //make sure nothing is spawning there
+              if (getTile(spawnX, spawnY).TurnsUntilAssembled == 0)
               {
-                  //if the droid's x and y is the same as the spawn point
-                  if (droids[i].X == spawnX && droids[i].Y == spawnY)
+                  spawning = true;
+                  bool spawn = true;
+                  //make sure there isn't a hangar there
+                  for (int i = 0; i < droids.Length; i++)
                   {
-                      //if the droid is a hangar
-                      if (droids[i].Variant == (int) Unit.HANGAR)
+                      //if the droid's x and y is the same as the spawn point
+                      if (droids[i].X == spawnX && droids[i].Y == spawnY)
                       {
-                          //can't spawn on top of hangars
-                          spawn = false;
-                          break;
+                          //if the droid is a hangar
+                          if (droids[i].Variant == (int)Unit.HANGAR)
+                          {
+                              //can't spawn on top of hangars
+                              spawn = false;
+                              break;
+                          }
                       }
                   }
+                  if (spawn)
+                  {
+                      //spawn the claw
+                      players[playerID()].orbitalDrop(spawnX, spawnY, (int)Unit.CLAW);
+                  }
               }
-              if (spawn)
+              else
               {
-                  //spawn the claw
-                  players[playerID()].orbitalDrop(spawnX, spawnY, (int)Unit.CLAW);
+                  spawnY++;
+                  if (spawnY >= mapHeight())
+                      spawnY = 0;
               }
           }
       }
