@@ -11,6 +11,7 @@ class BoardState
     public Bb theirMovables;
     public Bb ourImmovables;
     public Bb theirImmovables;
+    public Bb walkable;
     public int mapWidth;
     public int mapHeight;
     public int ourID;
@@ -42,6 +43,7 @@ class BoardState
         theirMovables = new Bb(mapWidth, mapHeight);
         ourImmovables = new Bb(mapWidth, mapHeight);
         theirImmovables = new Bb(mapWidth, mapHeight);
+        walkable = new Bb(mapWidth, mapHeight);
         for (int i = 0; i < droids.Length; i++)
         {
             Droid current = droids[i];
@@ -72,5 +74,7 @@ class BoardState
                     break;
             }
         }
+
+        walkable.board.Or(ourHangers.board).Or(theirHangers.board).Or(ourMovables.board).Or(theirMovables.board).Or(ourImmovables.board).Or(theirImmovables.board).Not();
     }
 }

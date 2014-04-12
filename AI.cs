@@ -17,7 +17,6 @@ enum Unit
 class AI : BaseAI
 {
     int spawnX = 4, spawnY = 4;
-    private Searcher searcher = new Searcher();
 
   public override string username()
   {
@@ -31,22 +30,30 @@ class AI : BaseAI
 
   public override bool run()
   {
-      Bb walkable = new Bb(mapWidth(), mapHeight());
+      BoardState boardState = new BoardState(droids, mapWidth(), mapHeight(), playerID());
       Func<Point, bool> isWalkable = delegate(Point p)
       {
-          return walkable.getValueFromSpot(p.X, p.Y);
+          return boardState.walkable.getValueFromSpot(p.X, p.Y);
       };
       Func<Point, bool> isGoal = delegate(Point p)
       {
-          return walkable.getValueFromSpot(p.X, p.Y);
+          return boardState.ourHangers.getValueFromSpot(p.X, p.Y);
       };
-      if (droids.Length > 0)
+      for (int i = 0; i < droids.Length; i++)
       {
-          System.Collections.Generic.IEnumerable<Point> path = searcher.findPath(droids[0], isGoal, isWalkable);
-          foreach(Point p in path)
+          if (droids[i].MovementLeft > 0 && droids[i].Owner == playerID())
           {
-              Console.WriteLine(p.X + p.Y);
+              System.Collections.Generic.IEnumerable<Point> path = Searcher.findPath(droids[i], isGoal, isWalkable);
+              Console.WriteLine("found path");
+              foreach(Point p in path)
+              {
+                  while(droids[i].MovementLeft > 0)
+                  {
+                      droids[i].move(p.X, p.Y);
+                  }
+              }
           }
+          
       }
 
       Bb ourClaws = new Bb(mapWidth(), mapHeight());
@@ -199,6 +206,8 @@ class AI : BaseAI
 
   public override void init()
   {
+      Searcher.mapHeight = mapHeight();
+      Searcher.mapWidth = mapWidth();
     int offset = 0;
     bool found = false;
     while(!found)

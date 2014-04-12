@@ -17,11 +17,10 @@ class Node
 
 class Searcher
 {
-    public Searcher()
-    {
-    }
+    static public int mapWidth;
+    static public int mapHeight;
 
-    public IEnumerable<Point> findPath(Droid start, Func<Point, bool> isGoal, Func<Point, bool> isWalkable)
+    static public IEnumerable<Point> findPath(Droid start, Func<Point, bool> isGoal, Func<Point, bool> isWalkable)
     {
         Queue<Node> frontier = new Queue<Node>();
         HashSet<Point> explored = new HashSet<Point>();
@@ -31,31 +30,49 @@ class Searcher
         {
             Node current = frontier.Dequeue();
 
-            if (isGoal(current.point))
-            {
-                List<Point> path = new List<Point>();
-                while (current.parent != null)
-                {
-                    path.Insert(0, current.point);
-                    current = current.parent;
-                }
-                return path;
-            }
-
             for (int i = -1; i < 2; i += 2)
             {
                 Point pX = new Point(current.point.X + i, current.point.Y);
+                if(pX.X >= 0 && pX.X < mapWidth)
+                {
+                    if (isGoal(pX))
+                    {
+                        List<Point> path = new List<Point>();
+                        while (current.parent != null)
+                        {
+                            path.Insert(0, current.point);
+                            current = current.parent;
+                        }
+                        return path;
+                    }
+                    if (isWalkable(pX) && !explored.Contains(pX))
+                    {
+                        explored.Add(pX);
+                        frontier.Enqueue(new Node(current, pX));
+                    }
+                }
+                
+                
                 Point pY = new Point(current.point.X, current.point.Y + i);
-                if (isWalkable(pX) && !explored.Contains(pX))
+                if (pY.Y >= 0 && pY.Y < mapHeight)
                 {
-                    explored.Add(pX);
-                    frontier.Enqueue(new Node(current, pX));
+                    if (isGoal(pY))
+                    {
+                        List<Point> path = new List<Point>();
+                        while (current.parent != null)
+                        {
+                            path.Insert(0, current.point);
+                            current = current.parent;
+                        }
+                        return path;
+                    }
+                    if (isWalkable(pY) && !explored.Contains(pY))
+                    {
+                        explored.Add(pY);
+                        frontier.Enqueue(new Node(current, pY));
+                    }
                 }
-                if (isWalkable(pY) && !explored.Contains(pY))
-                {
-                    explored.Add(pY);
-                    frontier.Enqueue(new Node(current, pY));
-                }
+                
             }
         }
 
