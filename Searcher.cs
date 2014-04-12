@@ -33,7 +33,7 @@ class Searcher
 
             if (isGoal(current.point))
             {
-                IList<Point> path = new List<Point>();
+                List<Point> path = new List<Point>();
                 while (current.parent != null)
                 {
                     path.Insert(0, current.point);

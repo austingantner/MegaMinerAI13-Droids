@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 enum Unit
@@ -16,7 +17,7 @@ enum Unit
 class AI : BaseAI
 {
     int spawnX = 4, spawnY = 4;
-    
+    private Searcher searcher = new Searcher();
 
   public override string username()
   {
@@ -30,6 +31,27 @@ class AI : BaseAI
 
   public override bool run()
   {
+      Bb walkable = new Bb(mapWidth(), mapHeight());
+      Func<Point, bool> isWalkable = delegate(Point p)
+      {
+          return walkable.getValueFromSpot(p.X, p.Y);
+      };
+      Func<Point, bool> isGoal = delegate(Point p)
+      {
+          return walkable.getValueFromSpot(p.X, p.Y);
+      };
+      if (droids.Length > 0)
+      {
+          System.Collections.Generic.IEnumerable<Point> path = searcher.findPath(droids[0], isGoal, isWalkable);
+          foreach(Point p in path)
+          {
+              Console.WriteLine(p.X + p.Y);
+          }
+      }
+
+      Bb ourClaws = new Bb(mapWidth(), mapHeight());
+      ourClaws.setAllDroidsForPlayer(droids, playerID(), (int)Unit.CLAW);
+
       //try to spawn a claw near your side
       //make sure you own enough scrap
       Console.WriteLine("Turn Number: " + turnNumber().ToString());
