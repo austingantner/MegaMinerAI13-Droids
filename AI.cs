@@ -13,10 +13,6 @@ enum Unit
   HANGAR = 7,
 };
 
-
-/// <summary>
-/// The class implementing gameplay logic.
-/// </summary>
 class AI : BaseAI
 {
     int spawnX = 4, spawnY = 4;
@@ -32,10 +28,6 @@ class AI : BaseAI
     return "droids";
   }
 
-  /// <summary>
-  /// This function is called each time it is your turn.
-  /// </summary>
-  /// <returns>True to end your turn. False to ask the server for updated information.</returns>
   public override bool run()
   {
       Bb ourClaws = new Bb(mapWidth(), mapHeight());
@@ -184,9 +176,6 @@ class AI : BaseAI
       return true;
   }
 
-  /// <summary>
-  /// This function is called once, before your first turn.
-  /// </summary>
   public override void init()
   {
     int offset = 0;
@@ -239,7 +228,6 @@ class AI : BaseAI
   /// This function is called once, after your last turn.
   /// </summary>
   public override void end() { }
-
 
 //This functions returns a pointer to a tile, or returns null for an invalid tile
 Tile getTile(int x, int y)
