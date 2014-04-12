@@ -21,7 +21,7 @@ class Searcher
     {
     }
 
-    public IEnumerable<Point> findPath(Droid start, Bb target)
+    public IEnumerable<Point> findPath(Droid start, Func<Point, bool> isGoal)
     {
         Queue<Node> frontier = new Queue<Node>();
         HashSet<Point> explored = new HashSet<Point>();
@@ -31,7 +31,7 @@ class Searcher
         {
             Node current = frontier.Dequeue();
 
-            if (target.getValueFromSpot(current.point.X, current.point.Y))
+            if (isGoal(current.point))
             {
                 IList<Point> path = new List<Point>();
                 while (current.parent != null)
@@ -49,12 +49,12 @@ class Searcher
                 if (!explored.Contains(pX))
                 {
                     explored.Add(pX);
-                    frontier.Enqueue(pX);
+                    frontier.Enqueue(new Node(current, pX));
                 }
                 if (!explored.Contains(pY))
                 {
                     explored.Add(pY);
-                    frontier.Enqueue(pY);
+                    frontier.Enqueue(new Node(current, pY));
                 }
             }
         }
