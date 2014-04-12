@@ -64,14 +64,14 @@
     <Compile Include="..\..\Tile.cs">
       <Link>Tile.cs</Link>
     </Compile>
-    <Compile Include="..\..\Searcher.cs">
-      <Link>Tile.cs</Link>
+	<Compile Include="..\..\Bb.cs">
+      <Link>Bb.cs</Link>
     </Compile>
-    <Compile Include="..\..\Point.cs">
-      <Link>Tile.cs</Link>
+	<Compile Include="..\..\CIA.cs">
+      <Link>CIA.cs</Link>
     </Compile>
-    <Compile Include="..\..\Bb.cs">
-      <Link>Tile.cs</Link>
+	<Compile Include="..\..\Mission.cs">
+      <Link>Mission.cs</Link>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

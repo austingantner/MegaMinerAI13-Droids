@@ -11,3 +11,6 @@ libclient.so
 *.glog
 client
 !jna.jar
+.csproj
+/VisualStudio/
+VisualStudio/Client/Client.csproj
