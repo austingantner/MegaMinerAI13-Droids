@@ -21,7 +21,7 @@ class Searcher
     {
     }
 
-    public IEnumerable<Point> findPath(Droid start, Func<Point, bool> isGoal)
+    public IEnumerable<Point> findPath(Droid start, Func<Point, bool> isGoal, Func<Point, bool> isWalkable)
     {
         Queue<Node> frontier = new Queue<Node>();
         HashSet<Point> explored = new HashSet<Point>();
@@ -46,12 +46,12 @@ class Searcher
             {
                 Point pX = new Point(current.point.X + i, current.point.Y);
                 Point pY = new Point(current.point.X, current.point.Y + i);
-                if (!explored.Contains(pX))
+                if (isWalkable(pX) && !explored.Contains(pX))
                 {
                     explored.Add(pX);
                     frontier.Enqueue(new Node(current, pX));
                 }
-                if (!explored.Contains(pY))
+                if (isWalkable(pY) && !explored.Contains(pY))
                 {
                     explored.Add(pY);
                     frontier.Enqueue(new Node(current, pY));
