@@ -44,16 +44,14 @@ class AI : BaseAI
           if (droids[i].MovementLeft > 0 && droids[i].Owner == playerID())
           {
               System.Collections.Generic.IEnumerable<Point> path = Searcher.findPath(droids[i], isGoal, isWalkable);
-              Console.WriteLine("found path");
               foreach(Point p in path)
               {
-                  while(droids[i].MovementLeft > 0)
-                  {
-                      droids[i].move(p.X, p.Y);
-                  }
+                  if (droids[i].MovementLeft <= 0)
+                    break;
+                  droids[i].move(p.X, p.Y);
               }
+              boardState.update(droids);
           }
-          
       }
 
       Bb ourClaws = new Bb(mapWidth(), mapHeight());
