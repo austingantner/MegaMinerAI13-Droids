@@ -18,29 +18,14 @@ class Point
         this.Y = Y;
     }
 
-    public override bool Equals(Object obj)
+    public override bool Equals(object obj)
     {
-        // Check for null values and compare run-time types.
-        if (obj == null || GetType() != obj.GetType())
-            return false;
-
         Point p = (Point)obj;
-        return (X == p.X) && (X == p.Y);
+        return (X == p.X) && (Y == p.Y);
     }
 
     public override int GetHashCode()
     {
         return X ^ Y;
     }
-
-    public static bool operator ==(Point p1, Point p2)
-    {
-        return p1.X == p2.X && p1.Y == p2.Y;
-    }
-
-    public static bool operator !=(Point p1, Point p2)
-    {
-        return !(p1 == p2);
-    }
-
 }
