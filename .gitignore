@@ -15,3 +15,7 @@ client
 *.sln
 *.sdf
 *.user
+*.opensdf
+*.lex.yy.cpp
+*.lex.yy.h
+*.lex.yy

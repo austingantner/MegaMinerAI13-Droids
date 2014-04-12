@@ -5,17 +5,27 @@ using System.Text;
 
 class CIA
 {
-    void runMission(Mission m)
+    bool runMission(Mission m)
     {
         if (m.missionType == MissionTypes.goTo)
         {
-            goTo(m);
+            return goTo(m);
         }
+        else if (m.missionType == MissionTypes.attackInRange)
+        {
+            return attackInRange(m);
+        }
+        return false;
     }
 
     bool goTo(Mission m)
     {
-        
+        Searcher.findPath(m.agent, m.target,);
+        return true;
+    }
+
+    bool attackInRange(Mission m)
+    {
         return true;
     }
 }
