@@ -20,7 +20,13 @@ class CIA
 
     public static bool goTo(Mission m)
     {
-        //Searcher.findPath(m.agent, m.target,);
+        IEnumerable<Point> path = Searcher.findPath(m.agent, m.target,m.isWalkable);
+        foreach (Point p in path)
+        {
+            if (m.agent.MovementLeft <= 0)
+                break;
+            m.agent.move(p.X, p.Y);
+        }
         return true;
     }
 
