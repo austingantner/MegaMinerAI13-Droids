@@ -37,19 +37,13 @@ class AI : BaseAI
       };
       Func<Point, bool> isGoal = delegate(Point p)
       {
-          return boardState.ourHangers.getValueFromSpot(p.X, p.Y);
+          return boardState.theirHangers.getValueFromSpot(p.X, p.Y);
       };
       for (int i = 0; i < droids.Length; i++)
       {
           if (droids[i].MovementLeft > 0 && droids[i].Owner == playerID())
           {
-              System.Collections.Generic.IEnumerable<Point> path = Searcher.findPath(droids[i], isGoal, isWalkable);
-              foreach(Point p in path)
-              {
-                  if (droids[i].MovementLeft <= 0)
-                    break;
-                  droids[i].move(p.X, p.Y);
-              }
+              CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isGoal, isWalkable));
               boardState.update(droids);
           }
       }
