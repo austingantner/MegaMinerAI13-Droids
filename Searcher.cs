@@ -40,9 +40,10 @@ class Searcher
                         List<Point> path = new List<Point>();
                         while (current.parent != null)
                         {
-                            path.Insert(0, current.point);
+                            path.Add(current.point);
                             current = current.parent;
                         }
+                        path.Reverse();
                         return path;
                     }
                     if (isWalkable(pX) && !containsPoint(explored, pX))
@@ -61,9 +62,10 @@ class Searcher
                         List<Point> path = new List<Point>();
                         while (current.parent != null)
                         {
-                            path.Insert(0, current.point);
+                            path.Add(current.point);
                             current = current.parent;
                         }
+                        path.Reverse();
                         return path;
                     }
                     if (isWalkable(pY) && !containsPoint(explored,pY))
@@ -72,7 +74,6 @@ class Searcher
                         frontier.Enqueue(new Node(current, pY));
                     }
                 }
-                
             }
         }
 
