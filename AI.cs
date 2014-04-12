@@ -30,10 +30,9 @@ class AI : BaseAI
 
   public override bool run()
   {
-      Bb ourClaws = new Bb(mapWidth(), mapHeight());
-      ourClaws.setAllDroidsForPlayer(droids, playerID(), (int)Unit.CLAW);
       //try to spawn a claw near your side
       //make sure you own enough scrap
+      Console.WriteLine("Turn Number: " + turnNumber().ToString());
       if (players[playerID()].ScrapAmount >= modelVariants[(int)Unit.CLAW].Cost)
       {
           bool spawning = false;
@@ -42,7 +41,6 @@ class AI : BaseAI
               //make sure nothing is spawning there
               if (getTile(spawnX, spawnY).TurnsUntilAssembled == 0)
               {
-                  spawning = true;
                   bool spawn = true;
                   //make sure there isn't a hangar there
                   for (int i = 0; i < droids.Length; i++)
@@ -62,6 +60,7 @@ class AI : BaseAI
                   if (spawn)
                   {
                       //spawn the claw
+                      spawning = true;
                       players[playerID()].orbitalDrop(spawnX, spawnY, (int)Unit.CLAW);
                   }
               }
