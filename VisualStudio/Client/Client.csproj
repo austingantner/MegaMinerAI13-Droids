@@ -73,6 +73,15 @@
 	<Compile Include="..\..\Mission.cs">
       <Link>Mission.cs</Link>
     </Compile>
+	<Compile Include="..\..\Point.cs">
+      <Link>Point.cs</Link>
+    </Compile>
+	<Compile Include="..\..\BoardState.cs">
+      <Link>BoardState.cs</Link>
+    </Compile>
+	<Compile Include="..\..\Searcher.cs">
+      <Link>Searcher.cs</Link>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
