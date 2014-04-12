@@ -20,6 +20,7 @@ enum Unit
 class AI : BaseAI
 {
     int spawnX = 4, spawnY = 4;
+    
 
   public override string username()
   {
@@ -37,6 +38,8 @@ class AI : BaseAI
   /// <returns>True to end your turn. False to ask the server for updated information.</returns>
   public override bool run()
   {
+      Bb ourClaws = new Bb(mapWidth(), mapHeight());
+      ourClaws.setAllDroidsForPlayer(droids, playerID(), (int)Unit.CLAW);
       //try to spawn a claw near your side
       //make sure you own enough scrap
       if (players[playerID()].ScrapAmount >= modelVariants[(int)Unit.CLAW].Cost)
