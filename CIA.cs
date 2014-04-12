@@ -5,7 +5,7 @@ using System.Text;
 
 class CIA
 {
-    bool runMission(Mission m)
+    public static bool runMission(Mission m)
     {
         if (m.missionType == MissionTypes.goTo)
         {
@@ -18,14 +18,28 @@ class CIA
         return false;
     }
 
-    bool goTo(Mission m)
+    public static bool goTo(Mission m)
     {
-        Searcher.findPath(m.agent, m.target,);
+        //Searcher.findPath(m.agent, m.target,);
         return true;
     }
 
-    bool attackInRange(Mission m)
+    public static bool attackInRange(Mission m)
     {
+        Droid attacker = m.agent;
+        for (int i = 0; i < 40 && attacker.AttacksLeft > 0; i++)
+        {
+            for (int j = 0; j < 20 && attacker.AttacksLeft > 0; j++)
+            {
+                if (m.target(new Point(i, j)))
+                {
+                    if (Math.Abs(i - attacker.X) + Math.Abs(j - attacker.Y) <= attacker.Range)
+                    {
+                        attacker.operate(i, j);
+                    }
+                }
+            }
+        }
         return true;
     }
 }
