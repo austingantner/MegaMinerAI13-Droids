@@ -43,19 +43,12 @@ class AI : BaseAI
       {
           if (droids[i].MovementLeft > 0 && droids[i].Owner == playerID())
           {
-              System.Collections.Generic.IEnumerable<Point> path = Searcher.findPath(droids[i], isGoal, isWalkable);
-              foreach(Point p in path)
-              {
-                  if (droids[i].MovementLeft <= 0)
-                    break;
-                  droids[i].move(p.X, p.Y);
-              }
+              CIA.goTo(new Mission(MissionTypes.goTo, droids[i], isGoal, isWalkable));
               boardState.update(droids);
           }
       }
 
-      Bb ourClaws = new Bb(mapWidth(), mapHeight());
-      ourClaws.setAllDroidsForPlayer(droids, playerID(), (int)Unit.CLAW);
+
 
       //try to spawn a claw near your side
       //make sure you own enough scrap
@@ -100,105 +93,54 @@ class AI : BaseAI
           }
       }
       //loop through all of the droids
+     //loop through all of the droids
       for (int i = 0; i < droids.Length; i++)
       {
           //if you have control of the droid
           if ((droids[i].Owner == playerID() && droids[i].HackedTurnsLeft <= 0) ||
-             (droids[i].Owner != playerID() && droids[i].HackedTurnsLeft > 0))
+              (droids[i].Owner != playerID() && droids[i].HackedTurnsLeft > 0))
           {
-              //if there are any moves to be done
-              if (droids[i].MovementLeft > 0)
-              {
-                  //try to move towards the enemy
-                  int changeX = 1;
-                  //if on the right move towards the left
-                  if (playerID() == 1)
-                  {
-                      changeX = -1;
-                  }
-                  bool move = true;
-                  //check if there is a droid on that tile
-                  for (int z = 0; z < droids.Length; z++)
-                  {
-                      //if the two droids are different
-                      if (droids[z].Id != droids[i].Id)
-                      {
-                          //if there is a droid to run into
-                          if (droids[z].X == droids[i].X + changeX && droids[z].Y == droids[i].Y)
-                          {
-                              //don't move
-                              move = false;
-                          }
-                      }
-                  }
-                  //move if okay and within map boundaries
-                  if (move && droids[i].X + changeX >= 0 && droids[i].X + changeX < mapWidth())
-                  {
-                      droids[i].move(droids[i].X + changeX, droids[i].Y);
-                  }
-              }
               //if there are any attacks left
               if (droids[i].AttacksLeft > 0)
               {
-                  //find a target towards the enemy
-                  int changeX = 1;
-                  //enemy is to the left if playerID is one
-                  if (playerID() == 1)
+                  if (droids[i].Variant == (int)Unit.REPAIRER)
                   {
-                      changeX = -1;
+                      Bb targets = new Bb(mapWidth(), mapHeight());
+                      targets.board = targets.board.Or(boardState.ourHangers.board);
+                      targets.board = targets.board.Or(boardState.ourMovables.board);
+                      targets.board = targets.board.Or(boardState.ourImmovables.board);
+                      Func<Point, bool> target = spot =>
+                      {
+                          return targets.getValueFromSpot(spot.X, spot.Y);
+                      };
+                      Func<Point, bool> walkable = spot =>
+                      {
+                          return boardState.walkable.getValueFromSpot(spot.X, spot.Y);
+                      };
+                      Mission attack = new Mission(MissionTypes.attackInRange, droids[i], target, walkable);
+                      CIA.runMission(attack);
                   }
-                  Droid target = null;
-                  for (int z = 0; z < droids.Length; z++)
+                  else
                   {
-                      //if the droid is there make it a target
-                      if (droids[z].X == droids[i].X + changeX && droids[z].Y == droids[i].Y && droids[z].HealthLeft > 0)
+                      Bb targets = new Bb(mapWidth(), mapHeight());
+                      targets.board = targets.board.Or(boardState.theirHangers.board);
+                      targets.board = targets.board.Or(boardState.theirMovables.board);
+                      targets.board = targets.board.Or(boardState.theirImmovables.board);
+                      Func<Point, bool> target = spot =>
                       {
-                          target = droids[z];
-                      }
-                  }
-                  //if a target was found
-                  if (target != null)
-                  {
-                      //repairer logic
-                      if (droids[i].Variant == (int)Unit.REPAIRER)
+                          return targets.getValueFromSpot(spot.X, spot.Y);
+                      };
+                      Func<Point, bool> walkable = spot =>
                       {
-                          //only try to heal your units or hacked enemy units
-                          if ((target.Owner == playerID() && target.HackedTurnsLeft <= 0) ||
-                             (target.Owner != playerID() && target.HackedTurnsLeft > 0))
-                          {
-                              //heal the target
-                              droids[i].operate(target.X, target.Y);
-                          }
-                      }
-                      //hacker unit logic
-                      else if (droids[i].Variant == (int)Unit.HACKER)
-                      {
-                          //only operate on non-hacked enemy units
-                          if (target.Owner != playerID() && target.HackedTurnsLeft == 0)
-                          {
-                              //don't hack hangars or walls
-                              if (target.Variant != (int)Unit.HANGAR && target.Variant != (int)Unit.WALL)
-                              {
-                                  //hack the target
-                                  droids[i].operate(target.X, target.Y);
-                              }
-                          }
-                      }
-                      //other unit logic
-                      else
-                      {
-                          //only operate on hacked friendly units or enemy units
-                          if ((target.Owner == playerID() && target.HackedTurnsLeft > 0) ||
-                             (target.Owner != playerID() && target.HackedTurnsLeft <= 0))
-                          {
-                              //attack the target
-                              droids[i].operate(target.X, target.Y);
-                          }
-                      }
+                          return boardState.walkable.getValueFromSpot(spot.X, spot.Y);
+                      };
+                      Mission attack = new Mission(MissionTypes.attackInRange, droids[i], target, walkable);
+                      CIA.runMission(attack);
                   }
               }
           }
       }
+
       return true;
   }
 
