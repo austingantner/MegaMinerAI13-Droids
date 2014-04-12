@@ -19,3 +19,4 @@ client
 *.lex.yy.cpp
 *.lex.yy.h
 *.lex.yy
+visualizer.log
