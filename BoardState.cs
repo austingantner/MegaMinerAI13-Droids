@@ -15,6 +15,8 @@ class BoardState
     public Bb notAttackedByEnemy;
     public Bb attackTargets;
     public Bb hackTargets;
+    public Bb ourHalf;
+    public Bb theirHalf;
     public int mapWidth;
     public int mapHeight;
     public int ourID;
@@ -50,6 +52,27 @@ class BoardState
         walkable = new Bb(mapWidth, mapHeight);
         attackTargets = new Bb(mapWidth, mapHeight);
         hackTargets = new Bb(mapWidth, mapHeight);
+        ourHalf = new Bb(mapWidth, mapHeight);
+        theirHalf = new Bb(mapWidth, mapHeight);
+        for (int i = 0; i < mapWidth; i++)
+        {
+            for (int j = 0; j < mapHeight; j++)
+            {
+                if (i < 20)
+                {
+                    ourHalf.setValueAtSpot(i, j);
+                }
+                else
+                {
+                    theirHalf.setValueAtSpot(i, j);
+                }
+            }
+        }
+        if (ourID == 1)
+        {
+            ourHalf.board = ourHalf.board.Not();
+            theirHalf.board = theirHalf.board.Not();
+        }
         for (int i = 0; i < droids.Length; i++)
         {
             Droid current = droids[i];

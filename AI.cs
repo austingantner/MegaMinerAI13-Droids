@@ -32,6 +32,46 @@ class AI : BaseAI
 
       Console.WriteLine("Turn Number: " + turnNumber().ToString());
 
+      // Find rightmost enemy turret and spawn terminator
+      // If this is our first turn
+      if (turnNumber() < 2)
+      {
+          int x = 10;
+          int y = 0;
+          for (int i = 0; i < droids.Length; i++)
+          {
+              if (droids[i].Variant == (int)Unit.TURRET)
+              {
+                  if (droids[i].Owner != playerID())
+                  {
+                      if (getTile(droids[i].X, droids[i].Y).TurnsUntilAssembled == 0)
+                      {
+                          if (playerID() == 0)
+                          {
+                              if (droids[i].X > x)
+                              {
+                                  x = droids[i].X;
+                                  y = droids[i].Y;
+                              }
+                          }
+                          else
+                          {
+                              if (droids[i].X < x)
+                              {
+                                  x = droids[i].X;
+                                  y = droids[i].Y;
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+          if (players[playerID()].ScrapAmount >= modelVariants[(int)Unit.TERMINATOR].Cost)
+          {
+              players[playerID()].orbitalDrop(x, y, (int)Unit.TERMINATOR);
+          }
+      }
+
       // Find and spawn claws on enemy turrets
       // also count how many of each type we have
       int terminators = 0, claws = 0, archers = 0, hackers = 0;
@@ -177,26 +217,50 @@ class AI : BaseAI
       {
           if (droids[i].MovementLeft > 0 && ((droids[i].Owner == playerID() && droids[i].HackedTurnsLeft == 0) || (droids[i].Owner != playerID() && droids[i].HackedTurnsLeft > 0)))
           {
-              if (!(droids[i].Variant == (int)Unit.HACKER))
+              if (droids[i].HealthLeft < .3 * droids[i].MaxHealth)
               {
-                  if (droids[i].Variant == (int)Unit.TERMINATOR)
+                  Bb spotsOnOurSide = new Bb(mapWidth(), mapHeight());
+                  spotsOnOurSide.board = spotsOnOurSide.board.Or(boardState.ourHalf.board);
+                  Bb theirUnitsOurSide = new Bb(mapWidth(), mapHeight());
+                  theirUnitsOurSide.board = theirUnitsOurSide.board.Or(boardState.ourHalf.board);
+                  theirUnitsOurSide.board = theirUnitsOurSide.board.And(boardState.theirMovables.board);
+                  Func<Point, bool> attackOurSide = spot =>
                   {
-                      if (!CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isEnemyHangar, isWalkable, true)))
-                      {
-                          CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isGoalHacker, isWalkable, true));
-                      }
-                  }
-                  else
+                      return theirUnitsOurSide.getValueFromSpot(spot.X, spot.Y);
+                  };
+                  if (!CIA.runMission(new Mission(MissionTypes.goTo, droids[i], attackOurSide, isWalkable, true)))
                   {
-                      if (!CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isGoalHacker, isWalkable, true)))
+                      spotsOnOurSide.board = spotsOnOurSide.board.And(boardState.walkable.board);
+                      Func<Point, bool> runAway = spot =>
                       {
-                          CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isEnemyHangar, isWalkable, true));
-                      }
+                          return spotsOnOurSide.getValueFromSpot(spot.X, spot.Y);
+                      };
+                      CIA.runMission(new Mission(MissionTypes.goTo, droids[i], runAway, isWalkable, true));
                   }
               }
               else
               {
-                  CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isGoalHacker, isWalkable, true));
+                  if (!(droids[i].Variant == (int)Unit.HACKER))
+                  {
+                      if (droids[i].Variant == (int)Unit.TERMINATOR)
+                      {
+                          if (!CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isEnemyHangar, isWalkable, true)))
+                          {
+                              CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isGoalHacker, isWalkable, true));
+                          }
+                      }
+                      else
+                      {
+                          if (!CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isGoalHacker, isWalkable, true)))
+                          {
+                              CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isEnemyHangar, isWalkable, true));
+                          }
+                      }
+                  }
+                  else
+                  {
+                      CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isGoalHacker, isWalkable, true));
+                  }
               }
               boardState.update(droids);
           }
