@@ -28,19 +28,19 @@ class BoardState
     /// <param name="width"></param>
     /// <param name="height"></param>
     /// <param name="playerID"></param>
-    public BoardState(Droid[] droids, int width, int height, int playerID)
+    public BoardState(Droid[] droids, Tile[] tiles, int width, int height, int playerID)
     {
         mapWidth = width;
         mapHeight = height;
         ourID = playerID;
-        update(droids);
+        update(droids, tiles);
     }
 
     /// <summary>
     /// Update the position of all droids
     /// </summary>
     /// <param name="droids"></param>
-    public void update(Droid[] droids)
+    public void update(Droid[] droids, Tile[] tiles)
     {
         ourHangers = new Bb(mapWidth, mapHeight);
         theirHangers = new Bb(mapWidth, mapHeight);
@@ -172,6 +172,14 @@ class BoardState
         }
 
         notAttackedByEnemy.board.Not();
-        walkable.board.Or(ourHangers.board).Or(theirHangers.board).Or(ourMovables.board).Or(theirMovables.board).Or(ourImmovables.board).Or(theirImmovables.board).Not();
+        walkable.board.Or(ourHangers.board).Or(theirHangers.board).Or(ourMovables.board).Or(theirMovables.board).Or(ourImmovables.board).Or(theirImmovables.board);
+        foreach (Tile t in tiles)
+        {
+            if (t.TurnsUntilAssembled == 1)
+            {
+                walkable.setValueAtSpot(t.X, t.Y);
+            }
+        }
+        walkable.board.Not();
     }
 }

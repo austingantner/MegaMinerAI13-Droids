@@ -28,7 +28,7 @@ class AI : BaseAI
 
   public override bool run()
   {
-      BoardState boardState = new BoardState(droids, mapWidth(), mapHeight(), playerID());      
+      BoardState boardState = new BoardState(droids, tiles, mapWidth(), mapHeight(), playerID());      
 
       Console.WriteLine("Turn Number: " + turnNumber().ToString());
 
@@ -331,7 +331,7 @@ class AI : BaseAI
                           CIA.runMission(new Mission(MissionTypes.attackInRange, droids[i], hackerTarget, isWalkable, nope));
                       }
                   }
-                  boardState.update(droids);
+                  boardState.update(droids, tiles);
               }
           }
       }
@@ -396,7 +396,7 @@ class AI : BaseAI
                       CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isGoalHacker, isWalkable, isAttackable));
                   }
               }
-              boardState.update(droids);
+              boardState.update(droids, tiles);
           }
       }
 
@@ -441,7 +441,7 @@ class AI : BaseAI
                           CIA.runMission(new Mission(MissionTypes.attackInRange, droids[i], hackerTarget, isWalkable, nope));
                       }
                   }
-                  boardState.update(droids);
+                  boardState.update(droids, tiles);
               }
           }
       }

@@ -34,7 +34,7 @@ class CIA
         {
             alongTheWay(m);
         }
-        IEnumerable<Point> path = Searcher.findPath(new Point(m.agent.X, m.agent.Y), m.target, m.isWalkable);
+        List<Point> path = Searcher.findPath(new Point(m.agent.X, m.agent.Y), m.target, m.isWalkable);
         bool pathExists = false;
         foreach (Point p in path)
         {
