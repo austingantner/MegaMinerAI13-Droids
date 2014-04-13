@@ -43,6 +43,9 @@
     <Compile Include="..\..\Bb.cs">
       <Link>Bb.cs</Link>
     </Compile>
+    <Compile Include="..\..\BoardState.cs">
+      <Link>BoardState.cs</Link>
+    </Compile>
     <Compile Include="..\..\CIA.cs">
       <Link>CIA.cs</Link>
     </Compile>
