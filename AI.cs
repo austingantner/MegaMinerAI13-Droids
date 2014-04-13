@@ -16,8 +16,6 @@ enum Unit
 
 class AI : BaseAI
 {
-    int spawnX = 4, spawnY = 4;
-
   public override string username()
   {
     return "Droids Gone Wild: Show Me Your Nuts";
@@ -48,51 +46,26 @@ class AI : BaseAI
           }
       }
 
-
-
-      //try to spawn a claw near your side
-      //make sure you own enough scrap
       Console.WriteLine("Turn Number: " + turnNumber().ToString());
-      if (players[playerID()].ScrapAmount >= modelVariants[(int)Unit.CLAW].Cost)
+      for (int i = 0; i < mapHeight(); i++)
       {
-          bool spawning = false;
-          while (!spawning)
+          //make sure you own enough scrap
+          if (players[playerID()].ScrapAmount >= modelVariants[(int)Unit.CLAW].Cost)
           {
               //make sure nothing is spawning there
-              if (getTile(spawnX, spawnY).TurnsUntilAssembled == 0)
+              if (getTile((mapWidth() - 1) * playerID(), i).TurnsUntilAssembled == 0)
               {
-                  bool spawn = true;
                   //make sure there isn't a hangar there
-                  for (int i = 0; i < droids.Length; i++)
-                  {
-                      //if the droid's x and y is the same as the spawn point
-                      if (droids[i].X == spawnX && droids[i].Y == spawnY)
-                      {
-                          //if the droid is a hangar
-                          if (droids[i].Variant == (int)Unit.HANGAR)
-                          {
-                              //can't spawn on top of hangars
-                              spawn = false;
-                              break;
-                          }
-                      }
-                  }
-                  if (spawn)
+                  if (!boardState.ourHangers.getValueFromSpot((mapWidth() - 1) * playerID(), i))
                   {
                       //spawn the claw
-                      spawning = true;
-                      players[playerID()].orbitalDrop(spawnX, spawnY, (int)Unit.CLAW);
+                      players[playerID()].orbitalDrop((mapWidth() - 1) * playerID(), i, (int)Unit.CLAW);
                   }
-              }
-              else
-              {
-                  spawnY++;
-                  if (spawnY >= mapHeight())
-                      spawnY = 0;
               }
           }
       }
-      //loop through all of the droids
+      
+
      //loop through all of the droids
       for (int i = 0; i < droids.Length; i++)
       {
@@ -146,52 +119,8 @@ class AI : BaseAI
 
   public override void init()
   {
-      Searcher.mapHeight = mapHeight();
-      Searcher.mapWidth = mapWidth();
-    int offset = 0;
-    bool found = false;
-    while(!found)
-    {
-      //find a location without a hangar
-      for(int i = 0; i < tiles.Length; i++)
-      {
-        //make sure that the tile is near the edge
-        if(tiles[i].X == (mapWidth() - 1) * playerID() + offset)
-        {
-          bool hangarPresent = false;
-          //check for hangar
-          for(int z = 0; z < droids.Length; z++)
-          {
-            if(droids[z].X == tiles[i].X && droids[z].Y == tiles[i].Y)
-            {
-              hangarPresent = true;
-              break;
-            }
-          }
-          if(!hangarPresent)
-          {
-            spawnX = tiles[i].X;
-            spawnY = tiles[i].Y;
-            found = true;
-            break;
-          }
-        }
-      }
-      //if nothing was found then move away from the edge
-      if(!found)
-      {
-        //if on the left
-        if(playerID() == 0)
-        {
-          offset++;
-        }
-        else
-        {
-          //on the right
-          offset--;
-        }
-      }
-    }
+    Searcher.mapHeight = mapHeight();
+    Searcher.mapWidth = mapWidth();
   }
 
   /// <summary>
