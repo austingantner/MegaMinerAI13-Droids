@@ -24,7 +24,9 @@ class Searcher
     {
         if (isGoal(start))
         {
-            return new List<Point>();
+            List<Point> temp = new List<Point>();
+            temp.Add(start);
+            return temp ;
         }
         Queue<Node> frontier = new Queue<Node>();
         HashSet<Point> explored = new HashSet<Point>();
