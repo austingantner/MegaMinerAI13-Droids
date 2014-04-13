@@ -13,6 +13,8 @@ class CIA
                 return goTo(m);
             case MissionTypes.attackInRange:
                 return attackInRange(m);
+            case MissionTypes.goToAttackAlongTheWay:
+                return goToAttackAlongTheWay(m);
             default:
                 return false;
         };
@@ -30,8 +32,27 @@ class CIA
         return true;
     }
 
+    public static bool goToAttackAlongTheWay(Mission m)
+    {
+        IEnumerable<Point> path = Searcher.findPath(m.agent, m.target, m.isWalkable);
+        foreach (Point p in path)
+        {
+            if (m.agent.MovementLeft <= 0)
+                break;
+            m.agent.move(p.X, p.Y);
+            //max attacks is 2...
+            attackInRange(m);//todo: targets are wrong here
+            attackInRange(m);
+        }
+        return true;
+    }
+
     public static bool attackInRange(Mission m)
     {
+        if (m.agent.AttacksLeft <= 0)
+        {
+            return false;
+        }
         Droid attacker = m.agent;
         for (int i = 0; i < 40 && attacker.AttacksLeft > 0; i++)
         {
@@ -42,10 +63,11 @@ class CIA
                     if (Math.Abs(i - attacker.X) + Math.Abs(j - attacker.Y) <= attacker.Range)
                     {
                         attacker.operate(i, j);
+                        return true;
                     }
                 }
             }
         }
-        return true;
+        return false;
     }
 }
