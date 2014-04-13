@@ -29,6 +29,7 @@ class AI : BaseAI
   public override bool run()
   {
       BoardState boardState = new BoardState(droids, mapWidth(), mapHeight(), playerID());
+     
       Func<Point, bool> isWalkable = delegate(Point p)
       {
           return boardState.walkable.getValueFromSpot(p.X, p.Y);
@@ -46,7 +47,7 @@ class AI : BaseAI
       {
           if (droids[i].MovementLeft > 0 && (droids[i].Owner == playerID() || (droids[i].Owner != playerID() && droids[i].HackedTurnsLeft > 0)))
           {
-              CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isEnemyHangar, isWalkable));
+              CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isEnemyHangar, isWalkable, true));
               boardState.update(droids);
           }
       }
@@ -187,7 +188,7 @@ class AI : BaseAI
                       {
                           return boardState.walkable.getValueFromSpot(spot.X, spot.Y);
                       };
-                      Mission attack = new Mission(MissionTypes.attackInRange, droids[i], target, walkable);
+                      Mission attack = new Mission(MissionTypes.attackInRange, droids[i], target, walkable, true);
                       CIA.runMission(attack);
                   }
                   else
@@ -204,7 +205,7 @@ class AI : BaseAI
                       {
                           return boardState.walkable.getValueFromSpot(spot.X, spot.Y);
                       };
-                      Mission attack = new Mission(MissionTypes.attackInRange, droids[i], target, walkable);
+                      Mission attack = new Mission(MissionTypes.attackInRange, droids[i], target, walkable, true);
                       CIA.runMission(attack);
                   }
               }

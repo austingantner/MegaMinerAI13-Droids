@@ -5,6 +5,14 @@ using System.Text;
 
 class CIA
 {
+    public static void runMissions(List<Mission> missions)
+    {
+        foreach (Mission m in missions)
+        {
+            runMission(m);
+        }
+    }
+
     public static bool runMission(Mission m)
     {
         switch (m.missionType)
