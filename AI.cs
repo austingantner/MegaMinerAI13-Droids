@@ -184,21 +184,24 @@ class AI : BaseAI
           searches++;
           for (int i = 0; i < mapHeight(); i++)
           {
-              IEnumerable<Point> path = Searcher.findPath(new Point(curCol, i), middleTarget, spawnWalkableFunc);
-              int temp = -1;
-              foreach (Point p in path)
+              if (getTile(curCol, i).TurnsUntilAssembled == 0)
               {
-                  temp++;
-              }
-              if (temp != -1 && temp < shortest)
-              {
-                  shortest = temp;
-                  bestRow = i;
-                  foundRow = true;
-              }
-              else if (temp == -1)
-              {
-                  badRows.Add(i);
+                  IEnumerable<Point> path = Searcher.findPath(new Point(curCol, i), middleTarget, spawnWalkableFunc);
+                  int temp = -1;
+                  foreach (Point p in path)
+                  {
+                      temp++;
+                  }
+                  if (temp != -1 && temp < shortest)
+                  {
+                      shortest = temp;
+                      bestRow = i;
+                      foundRow = true;
+                  }
+                  else if (temp == -1)
+                  {
+                      badRows.Add(i);
+                  }
               }
           }
           if (!foundRow)
