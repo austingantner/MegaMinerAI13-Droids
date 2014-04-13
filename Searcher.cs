@@ -22,6 +22,10 @@ class Searcher
 
     static public List<Point> findPath(Point start, Func<Point, bool> isGoal, Func<Point, bool> isWalkable)
     {
+        if (isGoal(start))
+        {
+            return new List<Point>();
+        }
         Queue<Node> frontier = new Queue<Node>();
         HashSet<Point> explored = new HashSet<Point>();
         frontier.Enqueue(new Node(null, new Point(start.X, start.Y)));
