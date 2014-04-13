@@ -30,14 +30,16 @@ class CIA
 
     public static bool goTo(Mission m)
     {
-        IEnumerable<Point> path = Searcher.findPath(m.agent, m.target, m.isWalkable);
         if (m.attackAlongTheWay)
         {
             attackInRange(m);//todo: targets are wrong here
             attackInRange(m);
         }
+        IEnumerable<Point> path = Searcher.findPath(m.agent, m.target, m.isWalkable);
+        bool pathExists = false;
         foreach (Point p in path)
         {
+            pathExists = true;
             if (m.agent.MovementLeft <= 0)
                 break;
             m.agent.move(p.X, p.Y);
@@ -47,7 +49,7 @@ class CIA
                 attackInRange(m);
             }
         }
-        return true;
+        return pathExists;
     }
 
     //goes to closest target and attacks
