@@ -270,11 +270,11 @@ class AI : BaseAI
                       }
                   }
               }
-              rowsChecked++;
               iter++;
               if (iter >= mapHeight())
                   iter = 0;
           }
+          rowsChecked++;
       }
 
 
@@ -352,15 +352,13 @@ class AI : BaseAI
                   {
                       return theirUnitsOurSide.getValueFromSpot(spot.X, spot.Y);
                   };
-                  if (!CIA.runMission(new Mission(MissionTypes.goTo, droids[i], attackOurSide, isWalkable, true)))
+                  CIA.runMission(new Mission(MissionTypes.goTo, droids[i], attackOurSide, isWalkable, true));
+                  spotsOnOurSide.board = spotsOnOurSide.board.And(boardState.walkable.board);
+                  Func<Point, bool> runAway = spot =>
                   {
-                      spotsOnOurSide.board = spotsOnOurSide.board.And(boardState.walkable.board);
-                      Func<Point, bool> runAway = spot =>
-                      {
-                          return spotsOnOurSide.getValueFromSpot(spot.X, spot.Y);
-                      };
-                      CIA.runMission(new Mission(MissionTypes.goTo, droids[i], runAway, isWalkable, true));
-                  }
+                      return spotsOnOurSide.getValueFromSpot(spot.X, spot.Y);
+                  };
+                  CIA.runMission(new Mission(MissionTypes.goTo, droids[i], runAway, isWalkable, true));
               }
               else
               {
