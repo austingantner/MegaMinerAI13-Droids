@@ -147,7 +147,10 @@ class AI : BaseAI
           {
               if (!(droids[i].Variant == (int)Unit.HACKER))
               {
-                  CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isEnemyHangar, isWalkable, true));
+                  if (!CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isEnemyHangar, isWalkable, true)))
+                  {
+                      CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isGoalHacker, isWalkable, true));
+                  }
               }
               else
               {
