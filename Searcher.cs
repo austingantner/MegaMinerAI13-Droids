@@ -20,7 +20,7 @@ class Searcher
     static public int mapWidth;
     static public int mapHeight;
 
-    static public IEnumerable<Point> findPath(Droid start, Func<Point, bool> isGoal, Func<Point, bool> isWalkable)
+    static public IEnumerable<Point> findPath(Point start, Func<Point, bool> isGoal, Func<Point, bool> isWalkable)
     {
         Queue<Node> frontier = new Queue<Node>();
         HashSet<Point> explored = new HashSet<Point>();

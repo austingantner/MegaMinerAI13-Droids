@@ -35,7 +35,7 @@ class CIA
             attackInRange(m);//todo: targets are wrong here
             attackInRange(m);
         }
-        IEnumerable<Point> path = Searcher.findPath(m.agent, m.target, m.isWalkable);
+        IEnumerable<Point> path = Searcher.findPath(new Point(m.agent.X, m.agent.Y), m.target, m.isWalkable);
         bool pathExists = false;
         foreach (Point p in path)
         {
@@ -56,7 +56,7 @@ class CIA
     //stops moving on successful attack
     public static bool goToAttack(Mission m)
     {
-        IEnumerable<Point> path = Searcher.findPath(m.agent, m.target, m.isWalkable);
+        IEnumerable<Point> path = Searcher.findPath(new Point(m.agent.X, m.agent.Y), m.target, m.isWalkable);
         foreach (Point p in path)
         {
             if (attackInRange(m))
