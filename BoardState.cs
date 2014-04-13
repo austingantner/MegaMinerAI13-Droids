@@ -83,35 +83,51 @@ class BoardState
                 case (int)Unit.REPAIRER:
                 case (int)Unit.HACKER:
                 case (int)Unit.TERMINATOR:
-                    if (current.Owner == ourID)
-                        ourMovables.setValueAtSpot(current.X, current.Y);
-                    else
+                    if (current.HealthLeft > 0)
                     {
-                        theirMovables.setValueAtSpot(current.X, current.Y);
-                        if (current.HackedTurnsLeft <= 0)
+                        if (current.Owner == ourID)
                         {
-                            attackTargets.setValueAtSpot(current.X, current.Y);
-                            hackTargets.setValueAtSpot(current.X, current.Y);
+                            ourMovables.setValueAtSpot(current.X, current.Y);
+                            if (current.HackedTurnsLeft > 0)
+                            {
+                                attackTargets.setValueAtSpot(current.X, current.Y);
+                                hackTargets.setValueAtSpot(current.X, current.Y);
+                            }
+                        }
+                        else
+                        {
+                            theirMovables.setValueAtSpot(current.X, current.Y);
+                            if (current.HackedTurnsLeft <= 0)
+                            {
+                                attackTargets.setValueAtSpot(current.X, current.Y);
+                                hackTargets.setValueAtSpot(current.X, current.Y);
+                            }
                         }
                     }
                     break;
                 case (int)Unit.TURRET:
                 case (int)Unit.WALL:
-                    if (current.Owner == ourID)
-                        ourImmovables.setValueAtSpot(current.X, current.Y);
-                    else
+                    if (current.HealthLeft > 0)
                     {
-                        theirImmovables.setValueAtSpot(current.X, current.Y);
-                        attackTargets.setValueAtSpot(current.X, current.Y);
+                        if (current.Owner == ourID)
+                            ourImmovables.setValueAtSpot(current.X, current.Y);
+                        else
+                        {
+                            theirImmovables.setValueAtSpot(current.X, current.Y);
+                            attackTargets.setValueAtSpot(current.X, current.Y);
+                        }
                     }
                     break;
                 case (int)Unit.HANGAR:
-                    if (current.Owner == ourID)
-                        ourHangers.setValueAtSpot(current.X, current.Y);
-                    else
+                    if (current.HealthLeft > 0)
                     {
-                        theirHangers.setValueAtSpot(current.X, current.Y);
-                        attackTargets.setValueAtSpot(current.X, current.Y);
+                        if (current.Owner == ourID)
+                            ourHangers.setValueAtSpot(current.X, current.Y);
+                        else
+                        {
+                            theirHangers.setValueAtSpot(current.X, current.Y);
+                            attackTargets.setValueAtSpot(current.X, current.Y);
+                        }
                     }
                     break;
             }
