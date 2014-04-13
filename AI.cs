@@ -39,7 +39,7 @@ class AI : BaseAI
       };
       for (int i = 0; i < droids.Length; i++)
       {
-          if (droids[i].MovementLeft > 0 && droids[i].Owner == playerID())
+          if (droids[i].MovementLeft > 0 && (droids[i].Owner == playerID() || (droids[i].Owner != playerID() && droids[i].HackedTurnsLeft > 0)))
           {
               CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isGoal, isWalkable));
               boardState.update(droids);
@@ -47,26 +47,118 @@ class AI : BaseAI
       }
 
       Console.WriteLine("Turn Number: " + turnNumber().ToString());
-      for (int i = 0; i < mapHeight(); i++)
+
+      // Find and spawn claws on enemy turrets
+      // also count how many of each type we have
+      int terminators = 0, claws = 0, archers = 0, hackers = 0;
+      for (int i = 0; i < droids.Length; i++)
       {
-          //make sure you own enough scrap
-          if (players[playerID()].ScrapAmount >= modelVariants[(int)Unit.CLAW].Cost)
+          if (droids[i].Variant == (int)Unit.TURRET)
           {
-              //make sure nothing is spawning there
-              if (getTile((mapWidth() - 1) * playerID(), i).TurnsUntilAssembled == 0)
+              if (droids[i].Owner != playerID())
               {
-                  //make sure there isn't a hangar there
-                  if (!boardState.ourHangers.getValueFromSpot((mapWidth() - 1) * playerID(), i))
+                  if (getTile(droids[i].X, droids[i].Y).TurnsUntilAssembled == 0)
                   {
-                      //spawn the claw
-                      players[playerID()].orbitalDrop((mapWidth() - 1) * playerID(), i, (int)Unit.CLAW);
+                      if (players[playerID()].ScrapAmount >= modelVariants[(int)Unit.CLAW].Cost)
+                      {
+                          players[playerID()].orbitalDrop(droids[i].X, droids[i].Y, (int)Unit.CLAW);
+                      }
+                  }
+              }
+          }
+          else
+          {
+              if (droids[i].Owner == playerID())
+              {
+                  switch (droids[i].Variant)
+                  {
+                      case (int)Unit.TERMINATOR:
+                          terminators++;
+                          break;
+                      case (int)Unit.CLAW:
+                          claws++;
+                          break;
+                      case (int)Unit.ARCHER:
+                          archers++;
+                          break;
+                      case (int)Unit.HACKER:
+                          hackers++;
+                          break;
                   }
               }
           }
       }
-      
 
-     //loop through all of the droids
+      // want 1 terminator and hacker per 2 archers and 3 claws
+      bool spawnClaws = 3 * terminators > claws;
+      bool spawnArch = 2 * terminators > archers && !spawnClaws;
+      bool spawnHack = terminators > hackers && turnNumber() > 100 && !spawnArch;
+
+      int cost = 10;
+      int unitID = 0;
+      if (spawnClaws)
+      {
+          unitID = (int)Unit.CLAW;
+          cost = modelVariants[(int)Unit.CLAW].Cost;
+      }
+      else if (spawnArch)
+      {
+          unitID = (int)Unit.ARCHER;
+          cost = modelVariants[(int)Unit.ARCHER].Cost;
+      }
+      else if (spawnHack)
+      {
+          unitID = (int)Unit.HACKER;
+          cost = modelVariants[(int)Unit.HACKER].Cost;
+      }
+      else
+      {
+          unitID = (int)Unit.TERMINATOR;
+          cost = modelVariants[(int)Unit.TERMINATOR].Cost;
+      }
+
+      Bb myUnits = new Bb(mapWidth(), mapHeight());
+      myUnits.board = myUnits.board.Or(boardState.ourHangers.board);
+      myUnits.board = myUnits.board.Or(boardState.ourImmovables.board);
+      myUnits.board = myUnits.board.Or(boardState.ourMovables.board);
+      for (int i = 0; i < mapHeight(); i++)
+      {
+          // enough scrap
+          if (players[playerID()].ScrapAmount >= cost)
+          {
+              // nothing spawning here
+              if (getTile((mapWidth() - 1) * playerID(), i).TurnsUntilAssembled == 0)
+              {
+                  if (!myUnits.getValueFromSpot((mapWidth() - 1) * playerID(), i))
+                  {
+                      // spawn it
+                      players[playerID()].orbitalDrop((mapWidth() - 1) * playerID(), i, unitID);
+                  }
+              }
+          }
+      }
+
+      #region Old Spawn Code
+      //for (int i = 0; i < mapHeight(); i++)
+      //{
+      //    //make sure you own enough scrap
+      //    if (players[playerID()].ScrapAmount >= modelVariants[(int)Unit.CLAW].Cost)
+      //    {
+      //        //make sure nothing is spawning there
+      //        if (getTile((mapWidth() - 1) * playerID(), i).TurnsUntilAssembled == 0)
+      //        {
+      //            //make sure there isn't a hangar there
+      //            if (!boardState.ourHangers.getValueFromSpot((mapWidth() - 1) * playerID(), i))
+      //            {
+      //                //spawn the claw
+      //                players[playerID()].orbitalDrop((mapWidth() - 1) * playerID(), i, (int)Unit.CLAW);
+      //            }
+      //        }
+      //    }
+      //}
+      #endregion
+
+      //loop through all of the droids
       for (int i = 0; i < droids.Length; i++)
       {
           //if you have control of the droid
@@ -111,6 +203,7 @@ class AI : BaseAI
                       CIA.runMission(attack);
                   }
               }
+              boardState.update(droids);
           }
       }
 
