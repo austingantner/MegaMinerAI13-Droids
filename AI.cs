@@ -145,6 +145,55 @@ class AI : BaseAI
           }
       }
 
+      Func<Point, bool> isWalkable = delegate(Point p)
+      {
+          return boardState.walkable.getValueFromSpot(p.X, p.Y);
+      };
+
+      // Search for best spawn location
+      int bestRow = 0;
+      Bb middleRows = new Bb(mapWidth(), mapHeight());
+      for (int i = 19; i < 21; i++)
+      {
+          for (int j = 0; j < mapHeight(); j++)
+          {
+              middleRows.setValueAtSpot(i, j);
+          }
+      }
+      bool foundRow = false;
+      int curCol = (playerID() == 0) ? 0 : mapWidth() - 1;
+      Func<Point, bool> middleTarget = spot =>
+      {
+          return middleRows.getValueFromSpot(spot.X, spot.Y);
+      };
+      while (!foundRow)
+      {
+          int shortest = 50;
+          for (int i = 0; i < mapHeight(); i++)
+          {
+              IEnumerable<Point> path = Searcher.findPath(new Point(curCol, i), middleTarget, isWalkable);
+              int temp = -1;
+              foreach (Point p in path)
+              {
+                  temp++;
+              }
+              if (temp != -1 && temp < shortest)
+              {
+                  shortest = temp;
+                  bestRow = i;
+                  foundRow = true;
+              }
+          }
+          if (!foundRow)
+          {
+              curCol = playerID() == 0 ? curCol + 1 : curCol - 1;
+              if (curCol < 0 || curCol >= mapWidth())
+              {
+                  curCol = (playerID() == 0) ? 0 : mapWidth() - 1;
+                  break;
+              }
+          }
+      }
       // want 1 terminator and hacker per 2 archers and 3 claws
       bool spawnClaws = terminators > claws && turnNumber() < 350;
       bool spawnArch = 2 * terminators > archers && !spawnClaws;
@@ -177,29 +226,32 @@ class AI : BaseAI
       myUnits.board = myUnits.board.Or(boardState.ourHangers.board);
       myUnits.board = myUnits.board.Or(boardState.ourImmovables.board);
       myUnits.board = myUnits.board.Or(boardState.ourMovables.board);
-      for (int i = 0; i < mapHeight(); i++)
+      int iter = bestRow;
+      int rowsChecked = 0;
+      while(rowsChecked < mapHeight())
       {
           // enough scrap
           if (players[playerID()].ScrapAmount >= cost)
           {
               // nothing spawning here
-              if (getTile((mapWidth() - 1) * playerID(), i).TurnsUntilAssembled == 0)
+              if (getTile(curCol, iter).TurnsUntilAssembled == 0)
               {
-                  if (!myUnits.getValueFromSpot((mapWidth() - 1) * playerID(), i))
+                  if (!myUnits.getValueFromSpot(curCol, iter))
                   {
                       // spawn it
-                      players[playerID()].orbitalDrop((mapWidth() - 1) * playerID(), i, unitID);
+                      players[playerID()].orbitalDrop(curCol, iter, unitID);
                   }
               }
           }
+          rowsChecked++;
+          iter++;
+          if (iter >= mapHeight())
+              iter = 0;
       }
 
       //CIA.runMissions(Strat.AssignMissions(droids, playerID(), boardState));
 
-      Func<Point, bool> isWalkable = delegate(Point p)
-      {
-          return boardState.walkable.getValueFromSpot(p.X, p.Y);
-      };
+      
       Func<Point, bool> isEnemyHangar = delegate(Point p)
       {
           return boardState.theirHangers.getValueFromSpot(p.X, p.Y);
