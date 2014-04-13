@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{F00875F2-E2BF-4246-91C5-F8FD8305307F}</ProjectGuid>
+    <ProjectGuid>{31976317-B317-4715-93F7-DE579C386516}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Client</RootNamespace>
-    <AssemblyName>Client</AssemblyName>
+    <RootNamespace>CSClient</RootNamespace>
+    <AssemblyName>CSClient</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -40,6 +40,12 @@
     <Compile Include="..\..\BaseAI.cs">
       <Link>BaseAI.cs</Link>
     </Compile>
+    <Compile Include="..\..\Bb.cs">
+      <Link>Bb.cs</Link>
+    </Compile>
+    <Compile Include="..\..\CIA.cs">
+      <Link>CIA.cs</Link>
+    </Compile>
     <Compile Include="..\..\Client.cs">
       <Link>Client.cs</Link>
     </Compile>
@@ -55,33 +61,27 @@
     <Compile Include="..\..\Mappable.cs">
       <Link>Mappable.cs</Link>
     </Compile>
+    <Compile Include="..\..\Mission.cs">
+      <Link>Mission.cs</Link>
+    </Compile>
     <Compile Include="..\..\ModelVariant.cs">
       <Link>ModelVariant.cs</Link>
     </Compile>
     <Compile Include="..\..\Player.cs">
       <Link>Player.cs</Link>
     </Compile>
+    <Compile Include="..\..\Point.cs">
+      <Link>Point.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Searcher.cs">
+      <Link>Searcher.cs</Link>
+    </Compile>
     <Compile Include="..\..\Tile.cs">
       <Link>Tile.cs</Link>
     </Compile>
-	<Compile Include="..\..\Bb.cs">
-      <Link>Bb.cs</Link>
-    </Compile>
-	<Compile Include="..\..\CIA.cs">
-      <Link>CIA.cs</Link>
-    </Compile>
-	<Compile Include="..\..\Mission.cs">
-      <Link>Mission.cs</Link>
-    </Compile>
-	<Compile Include="..\..\Point.cs">
-      <Link>Point.cs</Link>
-    </Compile>
-	<Compile Include="..\..\BoardState.cs">
-      <Link>BoardState.cs</Link>
-    </Compile>
-	<Compile Include="..\..\Searcher.cs">
-      <Link>Searcher.cs</Link>
-    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Debugging.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
