@@ -279,6 +279,14 @@ class AI : BaseAI
 
 
       // ATTACK
+      Func<Point, bool> isAttackable = delegate(Point p)
+      {
+          return boardState.theirHangers.getValueFromSpot(p.X, p.Y) || boardState.hackTargets.getValueFromSpot(p.X, p.Y);
+      };
+      Func<Point, bool> nope = delegate(Point p)
+      {
+          return false;
+      };
       for (int i = 0; i < droids.Length; i++)
       {
           //if you have control of the droid
@@ -298,7 +306,7 @@ class AI : BaseAI
                       {
                           return targets.getValueFromSpot(spot.X, spot.Y);
                       };
-                      CIA.runMission(new Mission(MissionTypes.attackInRange, droids[i], target, isWalkable, true));
+                      CIA.runMission(new Mission(MissionTypes.attackInRange, droids[i], target, isWalkable, nope));
                   }
                   else
                   {
@@ -310,13 +318,14 @@ class AI : BaseAI
                       {
                           return boardState.attackTargets.getValueFromSpot(spot.X, spot.Y);
                       };
+
                       if (droids[i].Variant != (int)Unit.HACKER)
                       {
-                          CIA.runMission(new Mission(MissionTypes.attackInRange, droids[i], target, isWalkable, true));
+                          CIA.runMission(new Mission(MissionTypes.attackInRange, droids[i], target, isWalkable, nope));
                       }
                       else
                       {
-                          CIA.runMission(new Mission(MissionTypes.attackInRange, droids[i], hackerTarget, isWalkable, true));
+                          CIA.runMission(new Mission(MissionTypes.attackInRange, droids[i], hackerTarget, isWalkable, nope));
                       }
                   }
                   boardState.update(droids);
@@ -352,13 +361,13 @@ class AI : BaseAI
                   {
                       return theirUnitsOurSide.getValueFromSpot(spot.X, spot.Y);
                   };
-                  CIA.runMission(new Mission(MissionTypes.goTo, droids[i], attackOurSide, isWalkable, true));
+                  CIA.runMission(new Mission(MissionTypes.goTo, droids[i], attackOurSide, isWalkable, isAttackable));
                   spotsOnOurSide.board = spotsOnOurSide.board.And(boardState.walkable.board);
                   Func<Point, bool> runAway = spot =>
                   {
                       return spotsOnOurSide.getValueFromSpot(spot.X, spot.Y);
                   };
-                  CIA.runMission(new Mission(MissionTypes.goTo, droids[i], runAway, isWalkable, true));
+                  CIA.runMission(new Mission(MissionTypes.goTo, droids[i], runAway, isWalkable, isAttackable));
               }
               else
               {
@@ -366,22 +375,22 @@ class AI : BaseAI
                   {
                       if (droids[i].Variant == (int)Unit.TERMINATOR)
                       {
-                          if (!CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isEnemyHangar, isWalkable, true)))
+                          if (!CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isEnemyHangar, isWalkable, isAttackable)))
                           {
-                              CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isGoalHacker, isWalkable, true));
+                              CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isGoalHacker, isWalkable, isAttackable));
                           }
                       }
                       else
                       {
-                          if (!CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isGoalHacker, isWalkable, true)))
+                          if (!CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isGoalHacker, isWalkable, isAttackable)))
                           {
-                              CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isEnemyHangar, isWalkable, true));
+                              CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isEnemyHangar, isWalkable, isAttackable));
                           }
                       }
                   }
                   else
                   {
-                      CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isGoalHacker, isWalkable, true));
+                      CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isGoalHacker, isWalkable, isAttackable));
                   }
               }
               boardState.update(droids);
@@ -408,7 +417,7 @@ class AI : BaseAI
                       {
                           return targets.getValueFromSpot(spot.X, spot.Y);
                       };
-                      CIA.runMission(new Mission(MissionTypes.attackInRange, droids[i], target, isWalkable, true));
+                      CIA.runMission(new Mission(MissionTypes.attackInRange, droids[i], target, isWalkable, nope));
                   }
                   else
                   {
@@ -422,11 +431,11 @@ class AI : BaseAI
                       };
                       if (droids[i].Variant != (int)Unit.HACKER)
                       {
-                          CIA.runMission(new Mission(MissionTypes.attackInRange, droids[i], target, isWalkable, true));
+                          CIA.runMission(new Mission(MissionTypes.attackInRange, droids[i], target, isWalkable, nope));
                       }
                       else
                       {
-                          CIA.runMission(new Mission(MissionTypes.attackInRange, droids[i], hackerTarget, isWalkable, true));
+                          CIA.runMission(new Mission(MissionTypes.attackInRange, droids[i], hackerTarget, isWalkable, nope));
                       }
                   }
                   boardState.update(droids);

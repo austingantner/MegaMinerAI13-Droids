@@ -30,10 +30,9 @@ class CIA
 
     public static bool goTo(Mission m)
     {
-        if (m.attackAlongTheWay)
+        if (alongTheWay(m))
         {
-            attackInRange(m);//todo: targets are wrong here
-            attackInRange(m);
+            alongTheWay(m);
         }
         IEnumerable<Point> path = Searcher.findPath(new Point(m.agent.X, m.agent.Y), m.target, m.isWalkable);
         bool pathExists = false;
@@ -43,10 +42,9 @@ class CIA
             if (m.agent.MovementLeft <= 0)
                 break;
             m.agent.move(p.X, p.Y);
-            if (m.attackAlongTheWay)
+            if (alongTheWay(m))
             {
-                attackInRange(m);//todo: targets are wrong here
-                attackInRange(m);
+                alongTheWay(m);
             }
         }
         return pathExists;
@@ -67,10 +65,9 @@ class CIA
             if (m.agent.MovementLeft <= 0)
                 break;
             m.agent.move(p.X, p.Y);
-            if (m.attackAlongTheWay)
+            if (alongTheWay(m))
             {
-                attackInRange(m);//todo: targets are wrong here
-                attackInRange(m);
+                alongTheWay(m);
             }
         }
         return true;
@@ -88,6 +85,30 @@ class CIA
             for (int j = 0; j < 20 && attacker.AttacksLeft > 0; j++)
             {
                 if (m.target(new Point(i, j)))
+                {
+                    if (Math.Abs(i - attacker.X) + Math.Abs(j - attacker.Y) <= attacker.Range)
+                    {
+                        attacker.operate(i, j);
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public static bool alongTheWay(Mission m)
+    {
+        if (m.agent.AttacksLeft <= 0)
+        {
+            return false;
+        }
+        Droid attacker = m.agent;
+        for (int i = 0; i < 40 && attacker.AttacksLeft > 0; i++)
+        {
+            for (int j = 0; j < 20 && attacker.AttacksLeft > 0; j++)
+            {
+                if (m.attackAlongTheWay(new Point(i, j)))
                 {
                     if (Math.Abs(i - attacker.X) + Math.Abs(j - attacker.Y) <= attacker.Range)
                     {

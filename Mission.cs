@@ -12,9 +12,9 @@ class Mission
     public Droid agent;
     public Func<Point, bool> target;
     public Func<Point, bool> isWalkable;
-    public bool attackAlongTheWay;
+    public Func<Point, bool> attackAlongTheWay;
 
-    public Mission(MissionTypes missionType, Droid agent, Func<Point, bool> target, Func<Point, bool> isWalkable, bool attackAlongTheWay)
+    public Mission(MissionTypes missionType, Droid agent, Func<Point, bool> target, Func<Point, bool> isWalkable, Func<Point, bool> attackAlongTheWay)
     {
         this.missionType = missionType;
         this.agent = agent;
