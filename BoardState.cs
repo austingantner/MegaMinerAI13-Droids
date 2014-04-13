@@ -13,6 +13,8 @@ class BoardState
     public Bb theirImmovables;
     public Bb walkable;
     public Bb notAttackedByEnemy;
+    public Bb attackTargets;
+    public Bb hackTargets;
     public int mapWidth;
     public int mapHeight;
     public int ourID;
@@ -46,6 +48,8 @@ class BoardState
         theirImmovables = new Bb(mapWidth, mapHeight);
         notAttackedByEnemy = new Bb(mapWidth, mapHeight);
         walkable = new Bb(mapWidth, mapHeight);
+        attackTargets = new Bb(mapWidth, mapHeight);
+        hackTargets = new Bb(mapWidth, mapHeight);
         for (int i = 0; i < droids.Length; i++)
         {
             Droid current = droids[i];
@@ -59,20 +63,33 @@ class BoardState
                     if (current.Owner == ourID)
                         ourMovables.setValueAtSpot(current.X, current.Y);
                     else
+                    {
                         theirMovables.setValueAtSpot(current.X, current.Y);
+                        if (current.HackedTurnsLeft <= 0)
+                        {
+                            attackTargets.setValueAtSpot(current.X, current.Y);
+                            hackTargets.setValueAtSpot(current.X, current.Y);
+                        }
+                    }
                     break;
                 case (int)Unit.TURRET:
                 case (int)Unit.WALL:
                     if (current.Owner == ourID)
                         ourImmovables.setValueAtSpot(current.X, current.Y);
                     else
+                    {
                         theirImmovables.setValueAtSpot(current.X, current.Y);
+                        attackTargets.setValueAtSpot(current.X, current.Y);
+                    }
                     break;
                 case (int)Unit.HANGAR:
                     if (current.Owner == ourID)
                         ourHangers.setValueAtSpot(current.X, current.Y);
                     else
+                    {
                         theirHangers.setValueAtSpot(current.X, current.Y);
+                        attackTargets.setValueAtSpot(current.X, current.Y);
+                    }
                     break;
             }
             if (current.Owner != ourID)

@@ -73,8 +73,40 @@ class AI : BaseAI
           }
       }
 
+      // DETECT WALLS
+      int numUnits = 0;
+      int colWithWall = -1;
+      for (int i = 15; i < 25; i++)
+      {
+          int tempCount = 0;
+          for (int j = 0; j < 20; j++)
+          {
+              if (boardState.theirMovables.getValueFromSpot(i, j) && !(getTile(i, j).TurnsUntilAssembled == 0))
+                  tempCount++;
+          }
+          if (tempCount > numUnits)
+          {
+              numUnits = tempCount;
+              colWithWall = i;
+          }
+      }
+      // SPAWN CLAWS ON WALLS
+      if (numUnits > 8)
+      {
+          for (int i = 0; i < 20; i++)
+          {
+              if (getTile(colWithWall, i).TurnsUntilAssembled == 0 && boardState.theirMovables.getValueFromSpot(colWithWall, i))
+              {
+                  if (players[playerID()].ScrapAmount >= modelVariants[(int)Unit.CLAW].Cost)
+                  {
+                      players[playerID()].orbitalDrop(colWithWall, i, (int)Unit.CLAW);
+                  }
+              }
+          }
+      }
+
       // want 1 terminator and hacker per 2 archers and 3 claws
-      bool spawnClaws = 3 * terminators > claws;
+      bool spawnClaws = 2 * terminators > claws;
       bool spawnArch = 2 * terminators > archers && !spawnClaws;
       bool spawnHack = terminators > hackers && turnNumber() > 100 && !spawnArch;
 
@@ -138,7 +170,7 @@ class AI : BaseAI
       };
       Func<Point, bool> isGoalHacker = delegate(Point p)
       {
-          return boardState.theirMovables.getValueFromSpot(p.X, p.Y);
+          return boardState.hackTargets.getValueFromSpot(p.X, p.Y);
       };
 
       for (int i = 0; i < droids.Length; i++)
@@ -188,17 +220,13 @@ class AI : BaseAI
                   }
                   else
                   {
-                      Bb targets = new Bb(boardState.ourHangers.width, boardState.ourHangers.height);
-                      targets.board = targets.board.Or(boardState.theirHangers.board);
-                      targets.board = targets.board.Or(boardState.theirMovables.board);
-                      targets.board = targets.board.Or(boardState.theirImmovables.board);
                       Func<Point, bool> hackerTarget = spot =>
                       {
-                          return boardState.theirMovables.getValueFromSpot(spot.X, spot.Y);
+                          return boardState.hackTargets.getValueFromSpot(spot.X, spot.Y);
                       };
                       Func<Point, bool> target = spot =>
                       {
-                          return targets.getValueFromSpot(spot.X, spot.Y);
+                          return boardState.attackTargets.getValueFromSpot(spot.X, spot.Y);
                       };
                       Func<Point, bool> walkable = spot =>
                       {
