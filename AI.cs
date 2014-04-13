@@ -178,7 +178,7 @@ class AI : BaseAI
       {
           return spawnWalkable.getValueFromSpot(spot.X, spot.Y);
       };
-      while (!foundRow && searches < 5)
+      while (!foundRow && searches < 15)
       {
           int shortest = 50;
           searches++;
@@ -221,7 +221,7 @@ class AI : BaseAI
       // want 1 terminator and hacker per 2 archers and 3 claws
       bool spawnClaws = terminators > claws && turnNumber() < 350;
       bool spawnArch = 2 * terminators > archers && !spawnClaws;
-      bool spawnHack = terminators > hackers && turnNumber() > 100 && !spawnArch;
+      bool spawnHack = terminators > hackers && turnNumber() > 25 && !spawnArch;
 
       int cost = 10;
       int unitID = 0;
