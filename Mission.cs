@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-public enum MissionTypes { goTo, goToAttack, goToAttackAlongTheWay, attackInRange };
+public enum MissionTypes { goTo, goToAttack, attackInRange };
 
 class Mission
 {
