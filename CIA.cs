@@ -13,6 +13,8 @@ class CIA
                 return goTo(m);
             case MissionTypes.attackInRange:
                 return attackInRange(m);
+            case MissionTypes.goToAttack:
+                return goToAttack(m);
             case MissionTypes.goToAttackAlongTheWay:
                 return goToAttackAlongTheWay(m);
             default:
@@ -32,6 +34,26 @@ class CIA
         return true;
     }
 
+    //goes to closest target and attacks
+    //stops moving on successful attack
+    public static bool goToAttack(Mission m)
+    {
+        IEnumerable<Point> path = Searcher.findPath(m.agent, m.target, m.isWalkable);
+        foreach (Point p in path)
+        {
+            if (attackInRange(m))
+            {
+                attackInRange(m);//for second attack
+                return true;
+            }
+            if (m.agent.MovementLeft <= 0)
+                break;
+            m.agent.move(p.X, p.Y);
+        }
+        return true;
+    }
+
+    //moves to target, looks for first chance to attack while moving
     public static bool goToAttackAlongTheWay(Mission m)
     {
         IEnumerable<Point> path = Searcher.findPath(m.agent, m.target, m.isWalkable);
