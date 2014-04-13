@@ -7,15 +7,15 @@ class CIA
 {
     public static bool runMission(Mission m)
     {
-        if (m.missionType == MissionTypes.goTo)
+        switch (m.missionType)
         {
-            return goTo(m);
-        }
-        else if (m.missionType == MissionTypes.attackInRange)
-        {
-            return attackInRange(m);
-        }
-        return false;
+            case MissionTypes.goTo:
+                return goTo(m);
+            case MissionTypes.attackInRange:
+                return attackInRange(m);
+            default:
+                return false;
+        };
     }
 
     public static bool goTo(Mission m)

@@ -11,7 +11,7 @@ enum Unit
   TURRET = 4,
   WALL = 5,
   TERMINATOR = 6,
-  HANGAR = 7,
+  HANGAR = 7
 };
 
 class AI : BaseAI
@@ -20,7 +20,7 @@ class AI : BaseAI
 
   public override string username()
   {
-    return "Show Me Your Nuts";
+    return "Droids Gone Wild: Show Me Your Nuts";
   }
 
   public override string password()
@@ -209,6 +209,5 @@ Tile getTile(int x, int y)
   return tiles[y + x * mapHeight()];
 }
 
-  public AI(IntPtr c)
-      : base(c) { }
+  public AI(IntPtr c) : base(c) { }
 }
