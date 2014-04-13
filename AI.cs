@@ -33,15 +33,20 @@ class AI : BaseAI
       {
           return boardState.walkable.getValueFromSpot(p.X, p.Y);
       };
-      Func<Point, bool> isGoal = delegate(Point p)
+      Func<Point, bool> isEnemyHangar = delegate(Point p)
       {
           return boardState.theirHangers.getValueFromSpot(p.X, p.Y);
       };
+      Func<Point, bool> isNotAttacked = delegate(Point p)
+      {
+          return boardState.notAttackedByEnemy.getValueFromSpot(p.X, p.Y);
+      };
+
       for (int i = 0; i < droids.Length; i++)
       {
           if (droids[i].MovementLeft > 0 && (droids[i].Owner == playerID() || (droids[i].Owner != playerID() && droids[i].HackedTurnsLeft > 0)))
           {
-              CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isGoal, isWalkable));
+              CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isEnemyHangar, isWalkable));
               boardState.update(droids);
           }
       }
