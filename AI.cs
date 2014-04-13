@@ -91,7 +91,7 @@ class AI : BaseAI
           }
       }
       // SPAWN CLAWS ON WALLS
-      if (numUnits > 8)
+      if (numUnits > 5)
       {
           for (int i = 0; i < 20; i++)
           {
@@ -106,7 +106,7 @@ class AI : BaseAI
       }
 
       // want 1 terminator and hacker per 2 archers and 3 claws
-      bool spawnClaws = 2 * terminators > claws;
+      bool spawnClaws = terminators > claws && turnNumber() < 350;
       bool spawnArch = 2 * terminators > archers && !spawnClaws;
       bool spawnHack = terminators > hackers && turnNumber() > 100 && !spawnArch;
 
@@ -179,9 +179,19 @@ class AI : BaseAI
           {
               if (!(droids[i].Variant == (int)Unit.HACKER))
               {
-                  if (!CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isEnemyHangar, isWalkable, true)))
+                  if (droids[i].Variant == (int)Unit.TERMINATOR)
                   {
-                      CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isGoalHacker, isWalkable, true));
+                      if (!CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isEnemyHangar, isWalkable, true)))
+                      {
+                          CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isGoalHacker, isWalkable, true));
+                      }
+                  }
+                  else
+                  {
+                      if (!CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isGoalHacker, isWalkable, true)))
+                      {
+                          CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isEnemyHangar, isWalkable, true));
+                      }
                   }
               }
               else
