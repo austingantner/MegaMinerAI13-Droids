@@ -36,9 +36,12 @@ class AI : BaseAI
       // If this is our first turn
       if (turnNumber() < 2)
       {
-          int x = 10;
-          int y = 0;
+          int x1 = 10;
+          int y1 = 0;
+          int x2 = 10;
+          int y2 = 0;
           bool foundSpot = false;
+          bool foundSecondSpot = false;
           for (int i = 0; i < droids.Length; i++)
           {
               if (droids[i].Variant == (int)Unit.TURRET)
@@ -47,21 +50,34 @@ class AI : BaseAI
                   {
                       if (getTile(droids[i].X, droids[i].Y).TurnsUntilAssembled == 0)
                       {
-                          foundSpot = true;
                           if (playerID() == 0)
                           {
-                              if (droids[i].X > x)
+                              if (droids[i].X > x1)
                               {
-                                  x = droids[i].X;
-                                  y = droids[i].Y;
+                                  foundSpot = true;
+                                  x1 = droids[i].X;
+                                  y1 = droids[i].Y;
+                              }
+                              else if (droids[i].X > x2)
+                              {
+                                  foundSecondSpot = true;
+                                  x2 = droids[i].X;
+                                  y2 = droids[i].Y;
                               }
                           }
                           else
                           {
-                              if (droids[i].X < x)
+                              if (droids[i].X < x1)
                               {
-                                  x = droids[i].X;
-                                  y = droids[i].Y;
+                                  foundSpot = true;
+                                  x1 = droids[i].X;
+                                  y1 = droids[i].Y;
+                              }
+                              else if (droids[i].X < x2)
+                              {
+                                  foundSecondSpot = true;
+                                  x2 = droids[i].X;
+                                  y2 = droids[i].Y;
                               }
                           }
                       }
@@ -70,13 +86,17 @@ class AI : BaseAI
           }
           if (players[playerID()].ScrapAmount >= modelVariants[(int)Unit.TERMINATOR].Cost && foundSpot)
           {
-              players[playerID()].orbitalDrop(x, y, (int)Unit.TERMINATOR);
+              players[playerID()].orbitalDrop(x1, y1, (int)Unit.TERMINATOR);
+          }
+          if (players[playerID()].ScrapAmount >= modelVariants[(int)Unit.TERMINATOR].Cost && foundSecondSpot)
+          {
+              players[playerID()].orbitalDrop(x2, y2, (int)Unit.TERMINATOR);
           }
       }
 
       // Find and spawn claws on enemy turrets
       // also count how many of each type we have
-      int terminators = 0, claws = 0, archers = 0, hackers = 0;
+      int terminators = 0, claws = 0, archers = 0, hackers = 0, repair = 0;
       for (int i = 0; i < droids.Length; i++)
       {
           if (droids[i].Variant == (int)Unit.TURRET)
@@ -109,6 +129,9 @@ class AI : BaseAI
                           break;
                       case (int)Unit.HACKER:
                           hackers++;
+                          break;
+                      case (int)Unit.REPAIRER:
+                          repair++;
                           break;
                   }
               }
@@ -222,12 +245,14 @@ class AI : BaseAI
           bestRow = 0;
       }
       // want 1 terminator and hacker per 2 archers and 3 claws
-      bool spawnClaws = terminators > claws && turnNumber() < 350;
+      bool spawnClaws = terminators > claws && turnNumber() < 250;
       bool spawnArch = 2 * terminators > archers && !spawnClaws;
       bool spawnHack = terminators > hackers && turnNumber() > 25 && !spawnArch;
+      bool spawnRepair = .5 * terminators > repair && turnNumber() > 75 && !spawnHack;
 
       int cost = 10;
       int unitID = 0;
+      bool doomDrop = false;
       if (spawnClaws)
       {
           unitID = (int)Unit.CLAW;
@@ -243,8 +268,19 @@ class AI : BaseAI
           unitID = (int)Unit.HACKER;
           cost = modelVariants[(int)Unit.HACKER].Cost;
       }
+      else if (spawnRepair)
+      {
+          unitID = (int)Unit.REPAIRER;
+          cost = modelVariants[(int)Unit.REPAIRER].Cost;
+      }
       else
       {
+          Random rand = new Random();
+          if (rand.Next() % 3 == 0 && 500 - turnNumber() > 90)
+          {
+              // DOOM DROP TERMINATORS
+              doomDrop = true;
+          }
           unitID = (int)Unit.TERMINATOR;
           cost = modelVariants[(int)Unit.TERMINATOR].Cost;
       }
@@ -255,29 +291,146 @@ class AI : BaseAI
       myUnits.board = myUnits.board.Or(boardState.ourMovables.board);
       int iter = bestRow;
       int rowsChecked = 0;
-      while(rowsChecked < mapHeight())
+      if (doomDrop)
       {
-          // Not a bad row
-          if (!badRows.Contains(iter))
+          // Search for walls
+          bool foundAWall = true;
+          while (players[playerID()].ScrapAmount >= modelVariants[(int)Unit.TERMINATOR].Cost && foundAWall)
           {
-              // enough scrap
-              if (players[playerID()].ScrapAmount >= cost)
+              bool foundWallThisIter = false;
+              for (int i = 0; i < droids.Length; i++)
               {
-                  // nothing spawning here
-                  if (getTile(curCol, iter).TurnsUntilAssembled == 0)
+                  if (droids[i].Owner != playerID())
                   {
-                      if (!myUnits.getValueFromSpot(curCol, iter))
+                      if (droids[i].Variant == (int)Unit.WALL)
                       {
-                          // spawn it
-                          players[playerID()].orbitalDrop(curCol, iter, unitID);
+                          if (getTile(droids[i].X, droids[i].Y).TurnsUntilAssembled == 0)
+                          {
+                              if (playerID() == 0)
+                              {
+                                  if (droids[i].X > 20)
+                                  {
+                                      players[playerID()].orbitalDrop(droids[i].X, droids[i].Y, (int)Unit.TERMINATOR);
+                                      foundWallThisIter = true;
+                                  }
+                              }
+                              else
+                              {
+                                  if (droids[i].X < 20)
+                                  {
+                                      players[playerID()].orbitalDrop(droids[i].X, droids[i].Y, (int)Unit.TERMINATOR);
+                                      foundWallThisIter = true;
+                                  }
+                              }
+                          }
                       }
                   }
               }
-              iter++;
-              if (iter >= mapHeight())
-                  iter = 0;
+              if (!foundWallThisIter)
+                  foundAWall = false;
           }
-          rowsChecked++;
+          if (players[playerID()].ScrapAmount >= modelVariants[(int)Unit.TERMINATOR].Cost)
+          {
+              // search for unreachable squares
+              int theirFirstCol = mapWidth() - 1;
+              if (playerID() == 1)
+                  theirFirstCol = 0;
+              int doomSearchIter = 0;
+              bool blockedSpotFound = false;
+              HashSet<int> rowsToSpawn = new HashSet<int>();
+              while (doomSearchIter < 12 && !blockedSpotFound)
+              {
+                  for (int i = 0; i < mapHeight(); i++)
+                  {
+                      if (!(getTile(theirFirstCol, i).TurnsUntilAssembled > 0))
+                      {
+                          IEnumerable<Point> path = Searcher.findPath(new Point(theirFirstCol, i), middleTarget, spawnWalkableFunc);
+                          int temp = -1;
+                          foreach (Point p in path)
+                          {
+                              temp++;
+                          }
+                          if (temp == -1)
+                          {
+                              rowsToSpawn.Add(i);
+                          }
+                      }
+                  }
+                  if (rowsToSpawn.Count > 0)
+                  {
+                      blockedSpotFound = true;
+                  }
+                  else
+                  {
+                      doomSearchIter++;
+                      if (playerID() == 0)
+                      {
+                          theirFirstCol--;
+                      }
+                      else
+                      {
+                          theirFirstCol++;
+                      }
+                  }
+              }
+              Console.WriteLine("Doom drop search spot done");
+              if (doomSearchIter >= 7)
+              {
+                  doomSearchIter = 0;
+              }
+              int anotherIter = 0;
+              while (players[playerID()].ScrapAmount >= modelVariants[(int)Unit.TERMINATOR].Cost && rowsToSpawn.Count > 0 && anotherIter < 2)
+              {
+                  int chooseRow = rowsToSpawn.GetEnumerator().Current;
+                  players[playerID()].orbitalDrop(theirFirstCol, chooseRow, (int)Unit.TERMINATOR);
+                  rowsToSpawn.Remove(chooseRow);
+                  anotherIter++;
+              }
+              Console.WriteLine("Best spots have been tried");
+              if (players[playerID()].ScrapAmount >= modelVariants[(int)Unit.TERMINATOR].Cost)
+              {
+                  theirFirstCol = mapWidth() - 1;
+                  if (playerID() == 1)
+                      theirFirstCol = 0;
+                  for (int i = 0; i < mapHeight() && players[playerID()].ScrapAmount >= modelVariants[(int)Unit.TERMINATOR].Cost; i++)
+                  {
+                      if (!(getTile(theirFirstCol, i).TurnsUntilAssembled > 0))
+                      {
+                          if (!boardState.theirHangers.getValueFromSpot(theirFirstCol, i))
+                          {
+                              players[playerID()].orbitalDrop(theirFirstCol, i, (int)Unit.TERMINATOR);
+                          }
+                      }
+                  }
+              }
+          }
+      }
+      else
+      {
+          while (rowsChecked < mapHeight())
+          {
+              // Not a bad row
+              if (!badRows.Contains(iter))
+              {
+                  // enough scrap
+                  if (players[playerID()].ScrapAmount >= cost)
+                  {
+                      // nothing spawning here
+                      if (getTile(curCol, iter).TurnsUntilAssembled == 0)
+                      {
+                          if (!myUnits.getValueFromSpot(curCol, iter))
+                          {
+                              // spawn it
+                              players[playerID()].orbitalDrop(curCol, iter, unitID);
+                          }
+                      }
+                  }
+                  iter++;
+                  if (iter >= mapHeight())
+                      iter = 0;
+              }
+              rowsChecked++;
+          }
       }
 
 
@@ -357,26 +510,54 @@ class AI : BaseAI
               {
                   Bb spotsOnOurSide = new Bb(mapWidth(), mapHeight());
                   spotsOnOurSide.board = spotsOnOurSide.board.Or(boardState.ourHalf.board);
-                  Bb theirUnitsOurSide = new Bb(mapWidth(), mapHeight());
-                  theirUnitsOurSide.board = theirUnitsOurSide.board.Or(boardState.ourHalf.board);
-                  theirUnitsOurSide.board = theirUnitsOurSide.board.And(boardState.theirMovables.board);
-                  Func<Point, bool> attackOurSide = spot =>
+                  if (droids[i].Variant == (int)Unit.REPAIRER)
                   {
-                      return theirUnitsOurSide.getValueFromSpot(spot.X, spot.Y);
-                  };
-                  CIA.runMission(new Mission(MissionTypes.goTo, droids[i], attackOurSide, isWalkable, isAttackable));
-                  spotsOnOurSide.board = spotsOnOurSide.board.And(boardState.walkable.board);
-                  Func<Point, bool> runAway = spot =>
+                      Bb ourUnitsOurSide = new Bb(mapWidth(), mapHeight());
+                      ourUnitsOurSide.board = ourUnitsOurSide.board.Or(boardState.ourHalf.board);
+                      ourUnitsOurSide.board = ourUnitsOurSide.board.And(boardState.ourMovables.board);
+                      Func<Point, bool> healTarget = spot =>
+                      {
+                          return ourUnitsOurSide.getValueFromSpot(spot.X, spot.Y);
+                      };
+                      CIA.runMission(new Mission(MissionTypes.goTo, droids[i], healTarget, isWalkable, nope));
+                      spotsOnOurSide.board = spotsOnOurSide.board.And(boardState.walkable.board);
+                      Func<Point, bool> runAway = spot =>
+                      {
+                          return spotsOnOurSide.getValueFromSpot(spot.X, spot.Y);
+                      };
+                      CIA.runMission(new Mission(MissionTypes.goTo, droids[i], runAway, isWalkable, isAttackable));
+                  }
+                  else
                   {
-                      return spotsOnOurSide.getValueFromSpot(spot.X, spot.Y);
-                  };
-                  CIA.runMission(new Mission(MissionTypes.goTo, droids[i], runAway, isWalkable, isAttackable));
+                      Bb theirUnitsOurSide = new Bb(mapWidth(), mapHeight());
+                      theirUnitsOurSide.board = theirUnitsOurSide.board.Or(boardState.ourHalf.board);
+                      theirUnitsOurSide.board = theirUnitsOurSide.board.And(boardState.theirMovables.board);
+                      Func<Point, bool> attackOurSide = spot =>
+                      {
+                          return theirUnitsOurSide.getValueFromSpot(spot.X, spot.Y);
+                      };
+                      CIA.runMission(new Mission(MissionTypes.goTo, droids[i], attackOurSide, isWalkable, isAttackable));
+                      spotsOnOurSide.board = spotsOnOurSide.board.And(boardState.walkable.board);
+                      Func<Point, bool> runAway = spot =>
+                      {
+                          return spotsOnOurSide.getValueFromSpot(spot.X, spot.Y);
+                      };
+                      CIA.runMission(new Mission(MissionTypes.goTo, droids[i], runAway, isWalkable, isAttackable));
+                  }
               }
               else
               {
                   if (!(droids[i].Variant == (int)Unit.HACKER))
                   {
-                      if (droids[i].Variant == (int)Unit.TERMINATOR)
+                      if (droids[i].Variant == (int)Unit.REPAIRER)
+                      {
+                          Func<Point, bool> healTarget = spot =>
+                          {
+                              return boardState.ourUnitsLowArmor.getValueFromSpot(spot.X, spot.Y);
+                          };
+                          CIA.runMission(new Mission(MissionTypes.goTo, droids[i], healTarget, isWalkable, nope));
+                      }
+                      else if (droids[i].Variant == (int)Unit.TERMINATOR)
                       {
                           if (!CIA.runMission(new Mission(MissionTypes.goTo, droids[i], isEnemyHangar, isWalkable, isAttackable)))
                           {

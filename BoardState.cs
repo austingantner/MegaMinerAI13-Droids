@@ -17,6 +17,7 @@ class BoardState
     public Bb hackTargets;
     public Bb ourHalf;
     public Bb theirHalf;
+    public Bb ourUnitsLowArmor;
     public int mapWidth;
     public int mapHeight;
     public int ourID;
@@ -54,6 +55,7 @@ class BoardState
         hackTargets = new Bb(mapWidth, mapHeight);
         ourHalf = new Bb(mapWidth, mapHeight);
         theirHalf = new Bb(mapWidth, mapHeight);
+        ourUnitsLowArmor = new Bb(mapWidth, mapHeight);
         for (int i = 0; i < mapWidth; i++)
         {
             for (int j = 0; j < mapHeight; j++)
@@ -92,6 +94,10 @@ class BoardState
                             {
                                 attackTargets.setValueAtSpot(current.X, current.Y);
                                 hackTargets.setValueAtSpot(current.X, current.Y);
+                            }
+                            else if(current.Armor < current.MaxArmor)
+                            {
+                                ourUnitsLowArmor.setValueAtSpot(current.X, current.Y);
                             }
                         }
                         else
